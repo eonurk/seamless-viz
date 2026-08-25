@@ -4,7 +4,7 @@
 
 ```bash
 cp .env.example .env
-./scripts/check-assets.sh    # downloads/verifies the public AML data from OSF
+./scripts/check-assets.sh    # downloads/verifies AML data and molecular tools
 docker compose up
 ```
 

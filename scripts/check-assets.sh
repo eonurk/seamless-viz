@@ -18,6 +18,11 @@ if ! "$ROOT_DIR/scripts/download-aml-assets.sh"; then
   exit 1
 fi
 
+if ! "$ROOT_DIR/scripts/install-molecular-tools.sh"; then
+  red "Molecular tool setup failed. Check the error above and retry."
+  exit 1
+fi
+
 required_missing=0
 optional_missing=0
 
@@ -49,7 +54,7 @@ check optional "B-ALL training matrix"   "data/B-ALL/training_rna_raw_full_ensem
 check optional "T-ALL training matrix"   "data/T-ALL/training_rna_raw_full_ensembl_t_all_direct_plus_derived.parquet"
 
 echo
-echo "Molecular tools (optional -- each endpoint degrades on its own)"
+echo "Molecular tools (public tools installed automatically; Bridge optional)"
 check optional "AMLmapR source"     "tools/AMLmapR/R/functions.R"
 check optional "ALLCatchR source"   "tools/ALLCatchR_bcrabl1/DESCRIPTION"
 check optional "ALLSorts source"    "tools/ALLSorts/ALLSorts"

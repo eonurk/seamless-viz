@@ -1,4 +1,3 @@
-# R compute environment for the seAMLess plumber API.
 # R environment for the standalone seAMLess compute backend.
 name: base
 channels:

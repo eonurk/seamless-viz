@@ -14,7 +14,7 @@ need() {
   [[ -e "$1" ]] || { echo "Missing: $1" >&2; exit 1; }
 }
 
-copy_or_keep_existing_file() {
+copy_optional_file() {
   local src="$1"
   local dst_dir="$2"
   local dst="$dst_dir/$(basename "$src")"
@@ -27,15 +27,16 @@ copy_or_keep_existing_file() {
     log "Source missing, keeping existing runtime file: $dst"
     return 0
   fi
-  echo "Missing: $src (and no existing runtime copy at $dst)" >&2
-  exit 1
+  log "Optional runtime file not supplied: $dst"
+  return 0
 }
 
 sync_or_keep_existing_dir() {
   local src_dir="$1"
   local dst_dir="$2"
   if [[ -d "$src_dir" ]]; then
-    rsync -a --delete "$src_dir/" "$dst_dir/"
+    mkdir -p "$dst_dir"
+    cp -R "$src_dir/." "$dst_dir/"
     return 0
   fi
   if [[ -d "$dst_dir" ]] && [[ -n "$(find "$dst_dir" -mindepth 1 -maxdepth 1 2>/dev/null)" ]]; then
@@ -50,7 +51,7 @@ log "Preparing runtime tool artifacts in $RUNTIME_DIR"
 mkdir -p "$RUNTIME_DIR/Bridge" "$RUNTIME_DIR/ALLSorts/models" "$RUNTIME_DIR/TALLSorts/models"
 
 # Bridge bundle (official bundle-first path)
-copy_or_keep_existing_file \
+copy_optional_file \
   "$SRC_TOOLS_DIR/Bridge/bridge_inference_with_gtex1252_plus_srp03245568_healthy_balanced.bundle" \
   "$RUNTIME_DIR/Bridge"
 

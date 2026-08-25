@@ -12,7 +12,7 @@ git clone --branch docker/seamless-stack git@github.com:eonurk/seamless-viz.git
 cd seamless-viz
 cp .env.example .env
 
-# Downloads missing AML data from OSF and verifies every checksum.
+# Downloads and verifies AML data plus public molecular tools.
 ./scripts/check-assets.sh
 
 docker compose up
@@ -66,9 +66,10 @@ and 1.5 GB off the build, at the cost of `/bridge-predict`.
 ## Reference data
 
 The required AML dataset is public on [OSF](https://osf.io/wq7gx/overview).
-`./scripts/check-assets.sh` downloads any missing AML files from OSF and verifies
-their published SHA-256 hashes. The large downloaded files remain `.gitignore`d;
-the small hg38 support tables absent from OSF are versioned with this repository.
+`./scripts/check-assets.sh` downloads missing AML files and molecular tool
+sources, then verifies their published or pinned SHA-256 hashes. The downloaded
+files remain `.gitignore`d; the small hg38 support tables absent from OSF are
+versioned with this repository.
 
 The resulting tree looks like this:
 
@@ -78,23 +79,53 @@ backend/
 │   ├── AML/            meta.csv, scores.csv, counts/, drug_response/, aberrations/
 │   ├── B-ALL/          optional training data
 │   └── T-ALL/          optional training data
-├── tools/              vendored tool sources: AMLmapR, ALLCatchR_bcrabl1,
-│                       ALLSorts, TALLSorts, Bridge
-├── tools_runtime/      model artifacts, derived from tools/
+├── tools/              pinned AMLmapR, ALLCatchR_bcrabl1, ALLSorts, TALLSorts
+├── tools_runtime/      classifier models derived from tools/
+│   └── Bridge/         optional restricted Bridge model bundle
 └── cache/              local generated state; never distributed
 ```
+
+The setup pins these upstream revisions rather than silently following their
+default branches:
+
+- [AMLmapR](https://github.com/jeppeseverens/AMLmapR)
+- [ALLSorts](https://github.com/Oshlack/ALLSorts)
+- [TALLSorts](https://github.com/Oshlack/TALLSorts)
+- [ALLCatchR_bcrabl1](https://github.com/ThomasBeder/ALLCatchR_bcrabl1)
+
+ALLSorts and TALLSorts include their public model artifacts. ALLCatchR is built
+into the persistent `r-libs` Docker volume on first start. The Bridge Python
+package is pinned and installed in the image.
+
+Bridge's model bundle is explicitly not distributed publicly by its upstream
+project and is licensed for non-commercial use. An authorized user can supply
+it without committing the file or URL:
+
+```bash
+BRIDGE_BUNDLE_PATH=/secure/path/bridge.bundle ./scripts/check-assets.sh
+
+# Or use a private, time-limited download URL with mandatory verification:
+BRIDGE_BUNDLE_URL='https://private.example/bridge.bundle' \
+BRIDGE_BUNDLE_SHA256='<expected sha256>' \
+./scripts/check-assets.sh
+```
+
+The configured filename is normalized under `backend/tools_runtime/Bridge/`.
+AMLmapR is also non-commercial; review every upstream license before commercial
+use or redistribution.
 
 `./scripts/check-assets.sh` separates the two cases that matter:
 
 - **Required** — the AML reference data. Missing files are downloaded from OSF.
-- **Optional** — B-ALL/T-ALL training data and molecular tools. Each degrades
-  independently: the dashboard runs, and `GET /molecular-tools` reports missing
-  tools as unavailable rather than erroring.
+- **Installed automatically** — AMLmapR, ALLCatchR, ALLSorts, and TALLSorts.
+- **Optional/restricted** — B-ALL/T-ALL training data and the Bridge bundle.
+  Each unavailable endpoint degrades independently, and `GET /molecular-tools`
+  reports exactly what is missing.
 
-If `tools/` is present but `tools_runtime/` is empty, populate the latter:
+To install only the public molecular tools, or to retry their setup:
 
 ```bash
-./backend/prepare_tools_runtime.sh
+./scripts/install-molecular-tools.sh
 ```
 
 `backend/cache/` is never downloaded or distributed. Reference matrices are
@@ -145,7 +176,8 @@ make up-d                # detached
 make logs                # follow all three services
 make down                # stop
 make ps                  # status + health
-make check-assets        # validate the bind-mounted data
+make check-assets        # download/verify data and tools
+make download-tools      # install only public molecular tools
 make shell-r             # shell in the R container
 make shell-service       # shell in the service container
 make rebuild             # rebuild images from scratch

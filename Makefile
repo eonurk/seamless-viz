@@ -1,6 +1,6 @@
 .PHONY: r-backend service frontend dev kill-ports \
         up down logs build rebuild ps shell-r shell-service \
-        download-assets check-assets docker-clean-cache docker-reset prod-build
+        download-assets download-tools check-assets docker-clean-cache docker-reset prod-build
 
 # ---------------------------------------------------------------------------
 # Docker (recommended -- see docs/DOCKER.md)
@@ -38,6 +38,10 @@ check-assets:
 ## Download and checksum the public AML reference dataset from OSF.
 download-assets:
 	./scripts/download-aml-assets.sh
+
+## Install pinned molecular tool sources and their public model artifacts.
+download-tools:
+	./scripts/install-molecular-tools.sh
 
 shell-r:
 	docker compose exec r-backend bash

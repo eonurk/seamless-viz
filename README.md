@@ -16,8 +16,10 @@ docker compose up
 ```
 
 `check-assets.sh` downloads the public AML reference data from
-[OSF](https://osf.io/wq7gx/overview) and verifies its SHA-256 checksums. It does
-not download or distribute cache files.
+[OSF](https://osf.io/wq7gx/overview), installs pinned molecular classifiers from
+their upstream repositories, and verifies downloaded archives with SHA-256.
+It does not download or distribute cache files. Bridge additionally requires
+an authorized private model bundle; see [docs/DOCKER.md](docs/DOCKER.md).
 
 Open <http://localhost:3000> after the services start. The initial image build
 can take 20–40 minutes.

@@ -22,8 +22,8 @@ mkdir -p "$RLIBS" "$BACKEND_DIR/cache" "${SEAMLESS_UPLOADS_DIR:-/shared/uploads}
 
 if [[ ! -d "$BACKEND_DIR/data" ]] || [[ -z "$(ls -A "$BACKEND_DIR/data" 2>/dev/null)" ]]; then
   die "$BACKEND_DIR/data is missing or empty.
-             Reference data is not in git. Unpack the seamless-data bundle into
-             ./backend/data on the host (see docs/DOCKER.md#reference-data)."
+             Run ./scripts/check-assets.sh on the host before starting Docker
+             (see docs/DOCKER.md#reference-data)."
 fi
 
 log "reference data present:$(cd "$BACKEND_DIR/data" && printf ' %s' */ 2>/dev/null || echo ' (none)')"
