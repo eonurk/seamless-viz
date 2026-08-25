@@ -1,10 +1,5 @@
-import { Icons } from "../icons";
+import { LoaderCircle } from "lucide-react";
 
 export function Spinner() {
-  return <span className="animate-spin inline-block color-aaa ">
-    <Icons.spinner color="#aaa" 
-      width="12"
-      height="12"			
-      strokeWidth="3"/>
-  </span>
+	return <LoaderCircle className="inline-block h-3 w-3 animate-spin text-muted-foreground" />;
 }

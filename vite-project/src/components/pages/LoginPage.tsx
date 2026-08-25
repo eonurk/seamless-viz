@@ -4,14 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 
-import { SiteFooter } from "../Footer";
-
 export function LoginPage({ user }: { user: FirebaseUser | null }) {
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (user) {
-			navigate("/dashboard");
+			navigate("/");
 		}
 	}, [user, navigate]);
 
@@ -27,7 +25,6 @@ export function LoginPage({ user }: { user: FirebaseUser | null }) {
 					</main>
 				)}
 			</div>
-			<SiteFooter />
 		</>
 	);
 }

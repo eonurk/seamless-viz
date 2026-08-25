@@ -1,83 +1,38 @@
 # seAMLess
 
-AI-assisted molecular analysis of leukemia RNA-seq: deconvolution, harmonization
-against reference cohorts, subtype classification, and drug-response views.
+Standalone molecular analysis and visualization for leukemia RNA-seq data.
+The local stack includes the React dashboard, Node API service, R/plumber
+compute backend, and isolated Python classifier runtimes.
 
-## Running it
+## Run locally
 
-**Use Docker** — one command, no environment to reproduce by hand:
+Docker is the recommended path. No Firebase account or application user is
+required in the default development configuration.
 
 ```bash
 cp .env.example .env
-./scripts/check-assets.sh       # downloads missing AML data from OSF
-docker compose up            # then open http://localhost:3000
+./scripts/check-assets.sh
+docker compose up
 ```
 
-See **[docs/DOCKER.md](docs/DOCKER.md)** for reference-data details,
-authentication modes, and troubleshooting, and
-[DEVELOPMENT.md](DEVELOPMENT.md) for the native workflow.
+`check-assets.sh` downloads the public AML reference data from
+[OSF](https://osf.io/wq7gx/overview) and verifies its SHA-256 checksums. It does
+not download or distribute cache files.
 
----
+Open <http://localhost:3000> after the services start. The initial image build
+can take 20–40 minutes.
 
-# Backend Installation
+See [docs/DOCKER.md](docs/DOCKER.md) for build options, authentication modes,
+asset availability, and troubleshooting. See [DEVELOPMENT.md](DEVELOPMENT.md)
+for the native three-process workflow.
+
+## Native R environment
 
 ```bash
 micromamba env create -f environment.yml
-micromamba activate celvox_env
+micromamba activate seamless_env
 ```
 
-In the R console, you can then install the R packages using:
-
-```R
-install.packages("fst")
-
-#install.packages("devtools")
-devtools::install_github("eonurk/seAMLess")
-devtools::install_github("eonurk/seAMLessData")
-
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("sva")
-
-# Install MuSiC package
-# TODO: This is an old version of the MuSiC package. We need to update it.
-install.packages("MCMCpack")
-install.packages("nnls")
-install.packages("MuSiC", repos = "https://eonurk.github.io/drat/")
-```
-
-## Frontend Deployment (celvox.co)
-
-Nginx serves the frontend from `/var/www/celvox` with SPA fallback to `index.html`. After pulling latest changes and building, deploy the contents of `vite-project/dist` to that web root.
-
-### One-liner redeploy
-
-```bash
-cd /root/celvox.co/vite-project \
-  && npm ci \
-  && npm run build \
-  && rsync -av --delete dist/ /var/www/celvox/ \
-  && chown -R www-data:www-data /var/www/celvox \
-  && find /var/www/celvox -type d -exec chmod 755 {} \; \
-  && find /var/www/celvox -type f -exec chmod 644 {} \; \
-  && nginx -t \
-  && systemctl reload nginx
-```
-
-### Optional: backup current site before syncing
-
-```bash
-ts=$(date +%Y%m%d_%H%M%S); tar -C /var/www -czf /var/www/celvox_${ts}.tgz celvox
-```
-
-### Quick check
-
-```bash
-curl -I https://celvox.co
-```
-
-Notes:
-
-- Update paths if project location or Nginx root changes.
-- API requests are proxied under `/api` to `http://127.0.0.1:3001/` per `/etc/nginx/sites-available/celvox.co`.
+The molecular classifiers need additional Python environments described in
+`docker/r-backend/env-moltools.yml` and `docker/r-backend/env-bridge.yml`.
+Docker builds and configures these automatically.

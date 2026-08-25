@@ -1,7 +1,7 @@
 {
-  "name": "service",
+  "name": "seamless-service",
   "version": "1.0.0",
-  "description": "",
+  "description": "Authentication and API proxy for the standalone seAMLess stack",
   "bin": "dist/server.js",
   "imports": {
     "#root/*": "./dist/*.js"

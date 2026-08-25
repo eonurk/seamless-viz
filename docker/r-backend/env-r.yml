@@ -1,5 +1,5 @@
 # R compute environment for the seAMLess plumber API.
-# Mirrors the historical `celvox_env` micromamba environment.
+# R environment for the standalone seAMLess compute backend.
 name: base
 channels:
   - conda-forge

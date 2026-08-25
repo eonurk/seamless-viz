@@ -59,7 +59,7 @@ prod-build:
 	SERVICE_TARGET=prod NODE_ENV=production docker compose build
 
 # ---------------------------------------------------------------------------
-# Native (requires micromamba celvox_env, Node, and the Python tool envs)
+# Native (requires micromamba seamless_env, Node, and the Python tool envs)
 # ---------------------------------------------------------------------------
 
 kill-ports:

@@ -9,7 +9,7 @@ const API_BASE_URL =
 	import.meta.env.VITE_API_BASE_URL ||
 	(window.location.hostname === "localhost"
 		? "http://localhost:3001/v1"
-		: "https://celvox.co/api/v1");
+		: "/api/v1");
 
 const axios = axiosLib.create();
 export const DASHBOARD_DISEASE_STORAGE_KEY = "seamless-dashboard-disease";

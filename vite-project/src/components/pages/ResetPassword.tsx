@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/firebase";
-import { SiteFooter } from "@/components/Footer";
 import { Navbar } from "@/components/header/Navbar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -60,7 +59,6 @@ export function ResetPassword() {
 					</form>
 				</div>
 			</div>
-			<SiteFooter />
 		</>
 	);
 }

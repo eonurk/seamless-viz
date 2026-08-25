@@ -1,209 +1,60 @@
 "use client";
-import React from "react";
-import { useState } from "react";
-import logo from "@/assets/logo-small.png";
-import { cn } from "@/lib/utils";
-import {
-	NavigationMenu,
-	NavigationMenuContent,
-	NavigationMenuItem,
-	NavigationMenuLink,
-	NavigationMenuList,
-	NavigationMenuTrigger,
-	navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { Link, useNavigate } from "react-router-dom";
-import MobileNav from "@/components/header/MobileNavbar";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { signOut } from "firebase/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { auth } from "@/firebase";
-import { useCurrentUser } from "@/lib/useCurrentUser";
-type SolutionNavItem = { title: string; href: string; description: string };
 
-const fetchSolutions = async (): Promise<SolutionNavItem[]> => {
-	try {
-		const res = await fetch("/products.json", { cache: "no-cache" });
-		const data = await res.json();
-		return data?.solutions ?? [];
-	} catch (e) {
-		console.error("Failed to load solutions:", e);
-		return [];
-	}
-};
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { auth } from "@/firebase";
+import { DEV_AUTH_ENABLED } from "@/lib/devAuth";
+import { useCurrentUser } from "@/lib/useCurrentUser";
+import { signOut } from "firebase/auth";
+import { Dna } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Navbar() {
 	const user = useCurrentUser();
-
-	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-	const [solutions, setSolutions] = useState<SolutionNavItem[]>([]);
-
-	React.useEffect(() => {
-		let isMounted = true;
-		fetchSolutions().then((items) => {
-			if (isMounted) setSolutions(items);
-		});
-		return () => {
-			isMounted = false;
-		};
-	}, []);
-	const toggleMobileMenu = () => {
-		setIsMobileMenuOpen(!isMobileMenuOpen);
-	};
-
 	const navigate = useNavigate();
 
 	const handleLogout = async () => {
 		try {
 			await signOut(auth);
-			navigate("/login"); // Redirect to login page after logout
+			navigate("/login");
 		} catch (error) {
-			console.error("Error logging out:", error);
+			console.error("Error signing out:", error);
 		}
 	};
 
 	return (
-		<header className="sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
-			<div className="flex h-full w-full max-w-screen-2xl items-center justify-between mx-auto px-4">
-				<Link to="/">
-					<img
-						src={logo}
-						alt="Celvox Logo"
-						style={{
-							width: "50px",
-							height: "50px",
-							margin: "10px 0px 10px 10px",
-						}}
-					/>
+		<header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur">
+			<div className="mx-auto flex min-h-16 w-full max-w-screen-2xl items-center justify-between px-4">
+				<Link
+					to="/"
+					className="flex items-center gap-2"
+					aria-label="seAMLess dashboard"
+				>
+					<span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white">
+						<Dna size={20} aria-hidden="true" />
+					</span>
+					<span className="text-lg font-black tracking-tight">seAMLess</span>
 				</Link>
 
-				{/* Desktop menu */}
-				<nav className="hidden md:flex">
-					<NavigationMenu>
-						<NavigationMenuList>
-							<NavigationMenuItem>
-								<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-									<Link className=" text-black" to="/">
-										Home
-									</Link>
-								</NavigationMenuLink>
-							</NavigationMenuItem>
-							<NavigationMenuItem>
-								<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-									<Link className=" text-black" to="/about">
-										About
-									</Link>
-								</NavigationMenuLink>
-							</NavigationMenuItem>
-
-							<NavigationMenuItem>
-								<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-									<Link className=" text-black" to="/blog">
-										Blog
-									</Link>
-								</NavigationMenuLink>
-							</NavigationMenuItem>
-
-							<NavigationMenuItem>
-								<NavigationMenuTrigger className=" text-black">
-									Solutions
-								</NavigationMenuTrigger>
-								<NavigationMenuContent>
-									<ul className="grid w-[200px] gap-3 p-4 md:w-[250px] md:grid-cols-1 lg:w-[300px] ">
-							{solutions.map((component) => (
-											<Link key={component.title} to={component.href}>
-												<ListItem title={component.title}>
-													{component.description}
-												</ListItem>
-											</Link>
-										))}
-									</ul>
-								</NavigationMenuContent>
-							</NavigationMenuItem>
-
-							<NavigationMenuItem>
-								<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-									<Link className=" text-black" to="/contact">
-										Contact
-									</Link>
-								</NavigationMenuLink>
-							</NavigationMenuItem>
-
-							{/* Add user-related menu items when logged in */}
-							{user && (
-								<NavigationMenuItem>
-									<NavigationMenuTrigger className="text-black">
-										<div className="flex items-center gap-2">
-											<Avatar className="h-8 w-8">
-												<AvatarImage src={user?.photoURL || ""} />
-												<AvatarFallback>
-													{user?.email?.[0].toUpperCase()}
-												</AvatarFallback>
-											</Avatar>
-										</div>
-									</NavigationMenuTrigger>
-
-									<NavigationMenuContent className="w-[400px]">
-										<ul className="grid w-[300px] gap-3 p-4 right-0">
-											<Link to="/dashboard">
-												<ListItem title="Dashboard" className="w-full">
-													Access your dashboard
-												</ListItem>
-											</Link>
-											<Link to="/profile">
-												<ListItem title="Profile">Manage your profile</ListItem>
-											</Link>
-											<button onClick={handleLogout} className="w-full">
-												<ListItem title="Logout">
-													Sign out of your account
-												</ListItem>
-											</button>
-										</ul>
-									</NavigationMenuContent>
-								</NavigationMenuItem>
-							)}
-						</NavigationMenuList>
-					</NavigationMenu>
-				</nav>
-
-				{/* Mobile menu button */}
-
-				<Button
-					variant="outline"
-					onClick={toggleMobileMenu}
-					className="md:hidden text-black bg-white p-2 rounded-md hover:bg-black hover:text-white"
-				>
-					<Menu size={24} />
-				</Button>
-				<MobileNav isOpen={isMobileMenuOpen} toggleMenu={toggleMobileMenu} />
+				{user && (
+					<div className="flex items-center gap-3">
+						<div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
+							<Avatar className="h-8 w-8">
+								<AvatarImage src={user.photoURL || ""} />
+								<AvatarFallback>
+									{user.email?.[0]?.toUpperCase() ?? "S"}
+								</AvatarFallback>
+							</Avatar>
+							<span>{user.email}</span>
+						</div>
+						{!DEV_AUTH_ENABLED && (
+							<Button variant="outline" size="sm" onClick={handleLogout}>
+								Sign out
+							</Button>
+						)}
+					</div>
+				)}
 			</div>
 		</header>
 	);
 }
-
-const ListItem = React.forwardRef<
-	React.ElementRef<"a">,
-	React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-	return (
-		<li>
-			<NavigationMenuLink asChild>
-				<span
-					ref={ref}
-					className={cn(
-						"block select-none space-y-2 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-						className
-					)}
-					{...props}
-				>
-					<div className="text-sm font-medium leading-none">{title}</div>
-					<p className="line-clamp-3 text-sm leading-snug text-muted-foreground">
-						{children}
-					</p>
-				</span>
-			</NavigationMenuLink>
-		</li>
-	);
-});
-ListItem.displayName = "ListItem";

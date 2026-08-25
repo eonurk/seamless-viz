@@ -185,14 +185,13 @@ SERVICE_TARGET=prod NODE_ENV=production docker compose up
 
 `SERVICE_TARGET=prod` runs the prebuilt `dist/` with no toolchain on the start
 path. The frontend's `prod` stage builds the static bundle and serves it from
-nginx with the SPA fallback and the `/api` → service proxy that the live
-`celvox.co` vhost uses. Note that Vite inlines `VITE_*` at **build** time, so
-those values are build args, not runtime environment.
+nginx with the SPA fallback and a local `/api` → service proxy. Note that Vite
+inlines `VITE_*` at **build** time, so those values are build args, not runtime
+environment.
 
 This is not a hardened production deployment — no TLS, no secret management, and
 `docker-compose.firebase.yml` mounts the service account key as a bind mount
-rather than a real secret. The live host still deploys via `deploy_prod.sh` and
-PM2.
+rather than a real secret.
 
 ---
 
@@ -241,5 +240,5 @@ bind-mounted `backend/` tree works regardless of host UID. Use
 
 The pre-Docker workflow still works and is documented in the top-level
 [README](../README.md) and [DEVELOPMENT.md](../DEVELOPMENT.md): a micromamba
-`celvox_env` for R, separate Python environments for the tools, and
+`seamless_env` for R, separate Python environments for the tools, and
 `make dev`. Docker exists so nobody has to reproduce that by hand.

@@ -28,7 +28,7 @@ export interface AppConfig {
   }
 }
 
-const DEFAULT_CORS_ORIGINS = ["https://celvox.co", "http://localhost:3000"]
+const DEFAULT_CORS_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 function envFlag(name: string): boolean {
   const value = process.env[name]

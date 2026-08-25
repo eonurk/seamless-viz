@@ -25,7 +25,7 @@ export default function Login() {
 		e.preventDefault();
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
-			navigate("/dashboard"); // Redirect to the dashboard after login
+			navigate("/");
 		} catch (error: unknown) {
 			setError(error instanceof Error ? error.message : "Failed to sign in");
 		}

@@ -7,21 +7,17 @@ import {
 	onAuthStateChanged,
 	getAuth,
 } from "firebase/auth";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+	BrowserRouter as Router,
+	Navigate,
+	Route,
+	Routes,
+} from "react-router-dom";
 
-import Home from "@/components/pages/Home";
 import LoginPage from "@/components/pages/LoginPage";
 import "@/firebase";
 import { DEV_AUTH_ENABLED, DEV_USER } from "@/lib/devAuth";
-import About from "@/components/pages/About";
-import ContactPage from "@/components/pages/ContactPage";
-import Blog from "@/components/pages/Blog";
-import Cellama from "@/components/pages/solutions/Cellama";
-import UserProfilePage from "@/components/pages/UserProfilePage";
 import ResetPassword from "@/components/pages/ResetPassword";
-import NotFoundPage from "@/components/pages/NotFoundPage";
-import Axon from "@/components/pages/solutions/Axon";
-import SeAMLess from "@/components/pages/solutions/seAMLess";
 
 function App() {
 	const [user, setUser] = useState<FirebaseUser | null>(
@@ -44,21 +40,11 @@ function App() {
 
 			<Router>
 				<Routes>
-					<Route path="/" element={<Home />} />
-					<Route path="/about" element={<About />} />
-					<Route path="/blog/*" element={<Blog />} />
-					<Route path="/solutions/cellama" element={<Cellama />} />
-					<Route
-						path="/solutions/seAMLess"
-						element={<SeAMLess user={user} />}
-					/>
-					<Route path="/solutions/axon" element={<Axon user={user} />} />
+					<Route path="/" element={<Dashboard user={user} />} />
 					<Route path="/dashboard" element={<Dashboard user={user} />} />
 					<Route path="/login" element={<LoginPage user={user} />} />
-					<Route path="/profile" element={<UserProfilePage />} />
-					<Route path="/contact" element={<ContactPage />} />
 					<Route path="/reset-password" element={<ResetPassword />} />
-					<Route path="*" element={<NotFoundPage />} />
+					<Route path="*" element={<Navigate to="/" replace />} />
 				</Routes>
 			</Router>
 		</>
