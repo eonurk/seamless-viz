@@ -4,14 +4,14 @@
 
 ```bash
 cp .env.example .env
-./scripts/check-assets.sh    # confirms the reference data bundle is unpacked
+./scripts/check-assets.sh    # downloads/verifies the public AML data from OSF
 docker compose up
 ```
 
 Open <http://localhost:3000>. You are signed in automatically as `dev@localhost`;
 no Firebase project is required.
 
-Full details — the data bundle, per-tool availability, real Firebase auth,
+Full details — reference data, per-tool availability, real Firebase auth,
 production-shaped images, troubleshooting — are in **[docs/DOCKER.md](docs/DOCKER.md)**.
 
 ### Natively

@@ -25,6 +25,14 @@ backend/service/logs
 backend/data
 backend/tools
 backend/tools_runtime
+# Small AML support tables absent from OSF are versioned. Large downloaded
+# datasets beneath backend/data remain ignored.
+!backend/data/
+backend/data/*
+!backend/data/AML/
+backend/data/AML/*
+!backend/data/AML/gene_positions_hg38.csv
+!backend/data/AML/grch38.rda
 backend/service/firebase-credentials.json
 backend/service/uploads
 environment.yml

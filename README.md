@@ -9,11 +9,11 @@ against reference cohorts, subtype classification, and drug-response views.
 
 ```bash
 cp .env.example .env
-./scripts/check-assets.sh
+./scripts/check-assets.sh       # downloads missing AML data from OSF
 docker compose up            # then open http://localhost:3000
 ```
 
-See **[docs/DOCKER.md](docs/DOCKER.md)** for the reference-data bundle,
+See **[docs/DOCKER.md](docs/DOCKER.md)** for reference-data details,
 authentication modes, and troubleshooting, and
 [DEVELOPMENT.md](DEVELOPMENT.md) for the native workflow.
 

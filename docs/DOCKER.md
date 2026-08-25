@@ -8,12 +8,11 @@ data, which is too large for git.
 ## TL;DR
 
 ```bash
-git clone git@github.com:eonurk/seamless-visualization.git
-cd seamless-visualization
+git clone --branch docker/seamless-stack git@github.com:eonurk/seamless-viz.git
+cd seamless-viz
 cp .env.example .env
 
-# unpack the data bundle (see "Reference data" below) so that
-# backend/data, backend/tools and backend/tools_runtime exist
+# Downloads missing AML data from OSF and verifies every checksum.
 ./scripts/check-assets.sh
 
 docker compose up
@@ -66,30 +65,31 @@ and 1.5 GB off the build, at the cost of `/bridge-predict`.
 
 ## Reference data
 
-`backend/data`, `backend/tools` and `backend/tools_runtime` are `.gitignore`d and
-add up to about 700 MB, so `git clone` does not give them to you. Ask the current
-maintainer for the data bundle and unpack it so the tree looks like this:
+The required AML dataset is public on [OSF](https://osf.io/wq7gx/overview).
+`./scripts/check-assets.sh` downloads any missing AML files from OSF and verifies
+their published SHA-256 hashes. The large downloaded files remain `.gitignore`d;
+the small hg38 support tables absent from OSF are versioned with this repository.
+
+The resulting tree looks like this:
 
 ```
 backend/
 ├── data/
 │   ├── AML/            meta.csv, scores.csv, counts/, drug_response/, aberrations/
-│   ├── B-ALL/          training_rna_*.parquet + metadata csv
-│   └── T-ALL/          training_rna_*.parquet + metadata csv
+│   ├── B-ALL/          optional training data
+│   └── T-ALL/          optional training data
 ├── tools/              vendored tool sources: AMLmapR, ALLCatchR_bcrabl1,
 │                       ALLSorts, TALLSorts, Bridge
 ├── tools_runtime/      model artifacts, derived from tools/
-└── cache/.reference/   optional: precomputed reference matrices
+└── cache/              local generated state; never distributed
 ```
 
-`./scripts/check-assets.sh` tells you what is present and what is missing. It
-separates the two cases that matter:
+`./scripts/check-assets.sh` separates the two cases that matter:
 
-- **Required** — `backend/data`. Without it the R backend refuses to start,
-  because nearly every endpoint reads from it.
-- **Optional** — the molecular tools. Each one degrades independently: the
-  dashboard runs, and `GET /molecular-tools` reports the missing ones as
-  unavailable rather than erroring.
+- **Required** — the AML reference data. Missing files are downloaded from OSF.
+- **Optional** — B-ALL/T-ALL training data and molecular tools. Each degrades
+  independently: the dashboard runs, and `GET /molecular-tools` reports missing
+  tools as unavailable rather than erroring.
 
 If `tools/` is present but `tools_runtime/` is empty, populate the latter:
 
@@ -97,9 +97,9 @@ If `tools/` is present but `tools_runtime/` is empty, populate the latter:
 ./backend/prepare_tools_runtime.sh
 ```
 
-Include `backend/cache/.reference/` in the bundle if you can. It holds
-precomputed reference matrices; without them the first t-SNE or harmonization
-request has to build them, which takes several minutes.
+`backend/cache/` is never downloaded or distributed. Reference matrices are
+generated locally on first use, so the first t-SNE or harmonization request can
+take several minutes; subsequent requests use the local cache.
 
 ---
 
@@ -198,8 +198,8 @@ PM2.
 
 ## Troubleshooting
 
-**`backend/data is missing or empty`** — the data bundle is not unpacked. Run
-`./scripts/check-assets.sh`.
+**AML data is missing or corrupt** — run `./scripts/check-assets.sh`. It resumes
+the public OSF downloads and verifies every file before Docker starts.
 
 **A prediction endpoint reports the tool as unavailable** — that tool's model
 artifacts are not mounted. Check `GET /molecular-tools?disease=<id>`; it lists

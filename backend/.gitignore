@@ -1,5 +1,11 @@
 data
 cache
+!data/
+data/*
+!data/AML/
+data/AML/*
+!data/AML/gene_positions_hg38.csv
+!data/AML/grch38.rda
 .ipynb_checkpoints
 
 .Rhistory

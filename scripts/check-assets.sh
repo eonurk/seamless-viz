@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Reports whether the bind-mounted reference data and molecular tool artifacts
-# are in place. Run on the HOST before `docker compose up`.
+# Downloads missing public AML data from OSF, then reports whether the
+# bind-mounted reference data and molecular tool artifacts are in place.
+# Run on the HOST before `docker compose up`.
 #
 #   ./scripts/check-assets.sh
 set -uo pipefail
@@ -11,6 +12,11 @@ BACKEND="$ROOT_DIR/backend"
 red()   { printf '\033[31m%s\033[0m\n' "$*"; }
 green() { printf '\033[32m%s\033[0m\n' "$*"; }
 amber() { printf '\033[33m%s\033[0m\n' "$*"; }
+
+if ! "$ROOT_DIR/scripts/download-aml-assets.sh"; then
+  red "AML download or verification failed. Check the network connection and retry."
+  exit 1
+fi
 
 required_missing=0
 optional_missing=0
@@ -29,15 +35,18 @@ check() {
 }
 
 echo
-echo "Reference data (required)"
+echo "AML reference data (required)"
 check required "AML metadata"            "data/AML/meta.csv"
 check required "AML raw counts"          "data/AML/counts/uncorrected_counts.csv"
 check required "AML batch-corrected counts" "data/AML/counts/corrected_counts.csv"
 check required "AML gene positions"      "data/AML/gene_positions_hg38.csv"
 check required "AML drug response"       "data/AML/drug_response/ex_vivo_drug_response.csv"
 check required "AML aberrations"         "data/AML/aberrations/aberrations_oh.csv"
-check required "B-ALL training matrix"   "data/B-ALL/training_rna_raw_full_ensembl_b_all_direct_plus_derived.parquet"
-check required "T-ALL training matrix"   "data/T-ALL/training_rna_raw_full_ensembl_t_all_direct_plus_derived.parquet"
+
+echo
+echo "Additional disease data (optional)"
+check optional "B-ALL training matrix"   "data/B-ALL/training_rna_raw_full_ensembl_b_all_direct_plus_derived.parquet"
+check optional "T-ALL training matrix"   "data/T-ALL/training_rna_raw_full_ensembl_t_all_direct_plus_derived.parquet"
 
 echo
 echo "Molecular tools (optional -- each endpoint degrades on its own)"
@@ -56,7 +65,7 @@ check optional "reference cache" "cache/.reference"
 echo
 if (( required_missing > 0 )); then
   red "$required_missing required asset(s) missing."
-  echo "Unpack the seamless-data bundle into ./backend (see docs/DOCKER.md)."
+  echo "Re-run ./scripts/download-aml-assets.sh, then check the files above."
   exit 1
 fi
 

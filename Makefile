@@ -1,6 +1,6 @@
 .PHONY: r-backend service frontend dev kill-ports \
         up down logs build rebuild ps shell-r shell-service \
-        check-assets docker-clean-cache docker-reset prod-build
+        download-assets check-assets docker-clean-cache docker-reset prod-build
 
 # ---------------------------------------------------------------------------
 # Docker (recommended -- see docs/DOCKER.md)
@@ -34,6 +34,10 @@ rebuild:
 ## Verify the bind-mounted reference data and tool artifacts.
 check-assets:
 	./scripts/check-assets.sh
+
+## Download and checksum the public AML reference dataset from OSF.
+download-assets:
+	./scripts/download-aml-assets.sh
 
 shell-r:
 	docker compose exec r-backend bash
